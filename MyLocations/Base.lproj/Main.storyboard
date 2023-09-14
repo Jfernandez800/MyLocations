@@ -2,6 +2,7 @@
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="nYX-4S-cGs">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
+        <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21679"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
@@ -17,7 +18,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="(Message Label)" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="CYv-J6-akG">
-                                <rect key="frame" x="124" y="20" width="127" height="21"/>
+                                <rect key="frame" x="16" y="20" width="343" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
@@ -58,6 +59,9 @@
                                 <rect key="frame" x="16" y="583" width="343" height="35"/>
                                 <state key="normal" title="Button"/>
                                 <buttonConfiguration key="configuration" style="plain" title="Get My Location"/>
+                                <connections>
+                                    <action selector="getLocation" destination="BYZ-38-t0r" eventType="touchUpInside" id="MC0-NO-hCy"/>
+                                </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="(Longitude goes here)" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="KkJ-e1-Ana">
                                 <rect key="frame" x="190.5" y="94" width="168.5" height="21"/>
@@ -74,17 +78,17 @@
                             <constraint firstItem="xEt-9v-P6h" firstAttribute="width" secondItem="Qyq-sr-srC" secondAttribute="width" multiplier="1.20896" id="5TR-TT-3Yf"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="plm-RN-u1O" secondAttribute="trailing" constant="16" id="7L7-wN-qFH"/>
                             <constraint firstItem="uVy-4J-lhS" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="Ad6-iJ-GwZ"/>
-                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="CYv-J6-akG" secondAttribute="trailing" constant="124" id="DAF-mq-t1d"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="uVy-4J-lhS" secondAttribute="trailing" constant="16" id="GO6-ix-lU7"/>
                             <constraint firstItem="KkJ-e1-Ana" firstAttribute="top" secondItem="gUI-oE-JvK" secondAttribute="bottom" constant="8" id="Gwk-Nf-a5p"/>
                             <constraint firstItem="plm-RN-u1O" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="K9B-dm-URa"/>
                             <constraint firstItem="gUI-oE-JvK" firstAttribute="top" secondItem="CYv-J6-akG" secondAttribute="bottom" constant="24" id="LzE-vp-MlG"/>
                             <constraint firstItem="Qyq-sr-srC" firstAttribute="top" secondItem="CYv-J6-akG" secondAttribute="bottom" constant="24" id="MbA-cJ-Y7h"/>
-                            <constraint firstItem="CYv-J6-akG" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="124" id="PVb-If-3zk"/>
                             <constraint firstItem="plm-RN-u1O" firstAttribute="bottom" secondItem="6Tk-OE-BBY" secondAttribute="bottom" id="TmH-OU-UdA"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="15U-56-Yhm" secondAttribute="trailing" constant="16" id="VSy-7l-EWJ"/>
                             <constraint firstItem="CYv-J6-akG" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="Wf3-Z3-wi6"/>
                             <constraint firstItem="gUI-oE-JvK" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="Qyq-sr-srC" secondAttribute="trailing" constant="8" id="XpA-W9-dXj"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="CYv-J6-akG" secondAttribute="trailing" constant="16" id="Z8s-2R-avY"/>
+                            <constraint firstItem="CYv-J6-akG" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="Zfh-IP-nMu"/>
                             <constraint firstItem="xEt-9v-P6h" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="Zv4-ok-AfR"/>
                             <constraint firstItem="15U-56-Yhm" firstAttribute="top" secondItem="KkJ-e1-Ana" secondAttribute="bottom" constant="24" id="dmd-Lg-F0o"/>
                             <constraint firstItem="xEt-9v-P6h" firstAttribute="top" secondItem="Qyq-sr-srC" secondAttribute="bottom" constant="8" id="eqj-Ki-NBb"/>
@@ -92,7 +96,9 @@
                             <constraint firstItem="Qyq-sr-srC" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="nlJ-TC-nva"/>
                             <constraint firstItem="15U-56-Yhm" firstAttribute="top" secondItem="xEt-9v-P6h" secondAttribute="bottom" constant="24" id="qfU-fh-BuP"/>
                             <constraint firstItem="15U-56-Yhm" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="rns-Bo-Sir"/>
+                            <constraint firstItem="CYv-J6-akG" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="uLB-D6-18Q"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="gUI-oE-JvK" secondAttribute="trailing" constant="16" id="ycW-uI-yDK"/>
+                            <constraint firstItem="CYv-J6-akG" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="16" id="yuh-Xr-2jS"/>
                         </constraints>
                     </view>
                     <tabBarItem key="tabBarItem" title="Tag" id="RLP-Qz-9O1"/>
@@ -116,6 +122,7 @@
                 <tabBarController automaticallyAdjustsScrollViewInsets="NO" id="nYX-4S-cGs" sceneMemberID="viewController">
                     <toolbarItems/>
                     <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="EmV-d1-vGI">
+                        <rect key="frame" x="0.0" y="0.0" width="1000" height="1000"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </tabBar>
