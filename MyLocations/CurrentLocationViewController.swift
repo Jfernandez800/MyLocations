@@ -30,6 +30,15 @@ class CurrentLocationViewController: UIViewController, /*Chapter 22*/ CLLocation
     var updatingLocation = false
     var lastLocationError: Error?
     
+    //Chapter 23 - These mirror what you did for the location manager.
+    let geocoder = CLGeocoder()
+    var placemark: CLPlacemark?
+    var performingReverseGeocoding = false
+    var lastGeocodingError: Error?
+    
+    //Chapter 23 -
+    var timer: Timer?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         updateLabels()
@@ -52,18 +61,68 @@ class CurrentLocationViewController: UIViewController, /*Chapter 22*/ CLLocation
             return
         }
         
-        locationManager.delegate = self
-        locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
+        //      locationManager.delegate = self
+        //      locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
         //Chapter 22 - Then you start the location manager.
-        locationManager.startUpdatingLocation()
+        //      locationManager.startUpdatingLocation()
+        
+        //Chapter 23 - New code below, replacing existing code after this point
+        //startLocationManager()
+        
+        //If the button is pressed while the app is already doing the location fetching, you stop the location manager.
+        if updatingLocation {
+            stopLocationManager()
+        } else {
+            location = nil
+            lastLocationError = nil
+            startLocationManager()
+        }
+        updateLabels()
     }
-    
     // MARK: - CLLocationManagerDelegate
     //Chapter 22 - error.localizedDescription bit which, instead of simply printing out the contents of the error variable,
     //    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error){
     //Chapter 22 - outputs a human understandable version of the error (if possible) based on the device’s current locale, or language setting.
     //        print("didFailWithError \(error.localizedDescription)")
     //    }
+    
+    //Chapter 23 - this checks whether the location services are enabled and you set the variable updatingLocation to true if you did indeed start location updates.
+    func startLocationManager() {
+        if CLLocationManager.locationServicesEnabled() {
+            locationManager.delegate = self
+            locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
+            locationManager.startUpdatingLocation()
+            updatingLocation = true
+            //Chapter 23 - The new lines set up a timer object that sends a didTimeOut message to self after 60 seconds.
+            timer = Timer.scheduledTimer(timeInterval: 60, target: self, selector: #selector(didTimeOut), userInfo: nil, repeats: false)
+        }
+    }
+    
+    //Chapter 23 - Checks whether the boolean instance variable updatingLocation is true or false.
+    func stopLocationManager() {
+        //Chapter 23 - The reason for having this updatingLocation variable is that you are going to change the appearance of the Get My Location button and the status message label when the app is trying to obtain a location fix, to let the user know the app is working on it.
+        if updatingLocation {
+            locationManager.stopUpdatingLocation()
+            locationManager.delegate = nil
+            updatingLocation = false
+            
+            //Chapter 23 - cancel the timer in case the location manager is stopped before the time-out fires.
+            if let timer = timer {
+                timer.invalidate()
+            }
+        }
+    }
+    
+    // func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]){
+    //     let newLocation = locations.last!
+    //     print("didUpdateLocations \(newLocation)")
+    
+    //Chapter 22 - You store the CLLocation object that you get from the location manager into the instance variable and call a new updateLabels() method.
+    //     location = newLocation
+    //Chapter 23 - This clears out the old error state. After receiving a valid coordinate, any previous error you may have encountered is no longer applicable.
+    //     lastLocationError = nil
+    //     updateLabels()
+    // }
     
     //Chapter 23 -
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error){
@@ -73,31 +132,75 @@ class CurrentLocationViewController: UIViewController, /*Chapter 22*/ CLLocation
             return
         }
         /*Chapter 23 - In the case of a more serious error, you store the error object into the new instance variable, lastLocationError.
-        That way, you can look up later what kind of error you were dealing with.*/
+         That way, you can look up later what kind of error you were dealing with.*/
         lastLocationError = error
         //Chapter 23 - If obtaining a location appears to be impossible for wherever the user currently is on the globe, then you need to tell the location manager to stop.
         stopLocationManager()
         updateLabels()
     }
     
-    //Chapter 23 - Checks whether the boolean instance variable updatingLocation is true or false. 
-    func stopLocationManager() {
-        //Chapter 23 - The reason for having this updatingLocation variable is that you are going to change the appearance of the Get My Location button and the status message label when the app is trying to obtain a location fix, to let the user know the app is working on it.
-        if updatingLocation {
-            locationManager.stopUpdatingLocation()
-            locationManager.delegate = nil
-            updatingLocation = false
-        }
-    }
-    
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]){
         let newLocation = locations.last!
         print("didUpdateLocations \(newLocation)")
+        //Chapter 23 - 1 - If the time at which the given location object was determined is too long ago — 5 seconds in this case —, then this is a cached result.
+        if newLocation.timestamp.timeIntervalSinceNow < -5 {
+            return
+        }
+        //Chapter 23 - 2 - To determine whether new readings are more accurate than previous ones, you’ll use the horizontalAccuracy property of the location object.
+        if newLocation.horizontalAccuracy < 0 {
+            return
+        }
         
-        //Chapter 22 - You store the CLLocation object that you get from the location manager into the instance variable and call a new updateLabels() method.
-        location = newLocation
-        updateLabels()
+        //Chapter 23 - This calculates the distance between the new reading and the previous reading.
+        var distance = CLLocationDistance(Double.greatestFiniteMagnitude)
+        if let location = location {
+            distance = newLocation.distance(from: location)
+        }
+        
+        //Chapter 23 - 3 - This is where you determine if the new reading is more useful than the previous one.
+        if location == nil || location!.horizontalAccuracy > newLocation.horizontalAccuracy {
+            //Chapter 23 - 4 - clears out any previous error and stores the new CLLocation object into the location variable.
+            lastLocationError = nil
+            location = newLocation
+            //Chapter 23 - 5 - If the new location’s accuracy is equal to or better than the desired accuracy, you can call it a day and stop asking the location manager for updates.
+            if newLocation.horizontalAccuracy <= locationManager.desiredAccuracy {
+                print("*** We're done!")
+                stopLocationManager()
+                
+                //Chapter 23 - forces a reverse geocoding for the final location.
+                if distance > 0 {
+                    performingReverseGeocoding = false
+                }
+            }
+            updateLabels()
+            //Chapter 23 - store the error object so you can refer to it later
+            if !performingReverseGeocoding {
+                print("*** Going to geocode")
+                performingReverseGeocoding = true
+                geocoder.reverseGeocodeLocation(newLocation) {placemarks, error in
+                    self.lastGeocodingError = error
+                    if error == nil, let places = placemarks, !places.isEmpty {
+                        self.placemark = places.last!
+                    } else {
+                        self.placemark = nil
+                    }
+                    self.performingReverseGeocoding = false
+                    self.updateLabels()
+                }
+                //Chapter 23 - If the coordinate from the reading is not different from the previous reading and its been more than 10 seconds since the original reading, then stop.
+            } else if distance < 1 {
+                let timeInterval = newLocation.timestamp.timeIntervalSince(location!.timestamp)
+                if timeInterval > 10 {
+                    print("*** Force done!")
+                    stopLocationManager()
+                    updateLabels()
+                }
+            }
+        }
     }
+    // End of the new code
+    
+    
     
     // MARK: - Helper Methods
     //Chapter 22 - This pops up an alert with a helpful hint.
@@ -115,6 +218,17 @@ class CurrentLocationViewController: UIViewController, /*Chapter 22*/ CLLocation
             longitudeLabel.text = String(format: "%.8f", location.coordinate.longitude)
             tagButton.isHidden = false
             messageLabel.text = ""
+            
+            //Chapter 23 - If you’ve found an address, you show that to the user, otherwise you show a status message.
+            if let placemark = placemark {
+                addressLabel.text = string(from: placemark)
+            } else if performingReverseGeocoding {
+                addressLabel.text = "Searching for Address..."
+            } else if lastGeocodingError != nil {
+                addressLabel.text = "Error Finding Address"
+            } else {
+                addressLabel.text = "No Address Found"
+            }
         } else {
             latitudeLabel.text = ""
             longitudeLabel.text = ""
@@ -138,6 +252,52 @@ class CurrentLocationViewController: UIViewController, /*Chapter 22*/ CLLocation
                 statusMessage = "Tap 'Get My Location' to Start"
             }
             messageLabel.text = statusMessage
+            configureGetButton()
+        }
+    }
+    
+    //Chapter 23 - if the app is currently updating the location, then the button’s title becomes Stop, otherwise it is Get My Location.
+    func configureGetButton() {
+        if updatingLocation {
+            getButton.setTitle("Stop", for: .normal)
+        } else {
+            getButton.setTitle("Get My Location", for: .normal)
+        }
+    }
+    
+    //Chapter 23 -
+    func string(from placemark: CLPlacemark) -> String {
+        // 1 - create a new string variable for the first line of text.
+        var line1 = ""
+        // 2 - If the placemark has a subThoroughfare, add it to the string.
+        if let tmp = placemark.subThoroughfare {
+            line1 += tmp + " "
+        }
+        // 3 - Adding the thoroughfare, or street name, is done similarly.
+        if let tmp = placemark.thoroughfare {
+            line1 += tmp }
+        // 4 - This adds the locality (the city), administrative area (the state or province), and postal code (or zip code), with spaces between them where appropriate.
+        var line2 = ""
+        if let tmp = placemark.locality {
+            line2 += tmp + " "
+        }
+        if let tmp = placemark.administrativeArea {
+            line2 += tmp + " "
+        }
+        if let tmp = placemark.postalCode {
+            line2 += tmp }
+        // 5 - the two lines are concatenated, or added together, with a newline character in between.
+        return line1 + "\n" + line2
+    }
+    
+    
+    @objc func didTimeOut() {
+        print("*** Time out")
+        // If after that one minute there still is no valid location, you stop the location manager, create your own error code, and update the screen.
+        if location == nil {
+            stopLocationManager()
+            lastLocationError = NSError(domain: "MyLocationsErrorDomain", code: 1, userInfo: nil)
+            updateLabels()
         }
     }
 }
