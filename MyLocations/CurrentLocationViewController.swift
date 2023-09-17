@@ -300,4 +300,25 @@ class CurrentLocationViewController: UIViewController, /*Chapter 22*/ CLLocation
             updateLabels()
         }
     }
+    
+    //Chpater 25 - asks the navigation controller to hide the navigation bar when this particular view is about to appear. 
+    override func viewWillAppear(_ animated: Bool) {
+      super.viewWillAppear(animated)
+      navigationController?.isNavigationBarHidden = true
+    }
+    
+    //reverse viewWillAppear.
+    override func viewWillDisappear(_ animated: Bool) {
+      super.viewWillDisappear(animated)
+      navigationController?.isNavigationBarHidden = false
+    }
+    
+    //Chapter 25 -
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "TagLocation" {
+            let controller = segue.destination as! LocationDetailsViewController
+            controller.coordinate = location!.coordinate
+            controller.placemark = placemark
+        }
+    }
 }
