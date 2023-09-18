@@ -16,10 +16,22 @@ class LocationDetailsViewController: UITableViewController {
     @IBOutlet var longitudeLabel: UILabel!
     @IBOutlet var addressLabel: UILabel!
     @IBOutlet var dateLabel: UILabel!
+    
     // MARK: - Actions
     @IBAction func done() {
-        navigationController?.popViewController(animated: true)
+        //Chapter 26 - This is some syntactic sugar to allow you to check for optionals and handle nil conditions easily.
+        guard let mainView = navigationController?.parent?.view
+        else { return }
+        let hudView = HudView.hud(inView: mainView, animated: true)
+        hudView.text = "Tagged"
+        
+        //Chapter 26 - tells the app to close the Tag Location screen after 0.6 seconds.
+        afterDelay(0.6) {
+            hudView.hide()
+            self.navigationController?.popViewController(animated: true)
+        }
     }
+    
     @IBAction func cancel() {
         navigationController?.popViewController(animated: true)
     }
@@ -44,6 +56,11 @@ class LocationDetailsViewController: UITableViewController {
             addressLabel.text = "No Address Found"
         }
         dateLabel.text = format(date: Date())
+        
+        //Chapter 26 - Hide keyboard
+        let gestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(hideKeyboard))
+        gestureRecognizer.cancelsTouchesInView = false
+        tableView.addGestureRecognizer(gestureRecognizer)
     }
     
     //Chapter 25 - similar to how the placemark was formatted on the main screen, except that you also include the country here.
@@ -83,10 +100,38 @@ class LocationDetailsViewController: UITableViewController {
         }
     }
     
-    
+    //assigns the category to the detailLabel
     @IBAction func categoryPickerDidPickCategory(_ segue: UIStoryboardSegue) {
         let controller = segue.source as! CategoryPickerViewController
         categoryName = controller.selectedCategoryName
         categoryLabel.text = categoryName
+    }
+    
+    
+    //Chapter 26 - limits taps to just the cells from the first two sections.
+    override func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
+        if indexPath.section == 0 || indexPath.section == 1 {
+            return indexPath
+        } else {
+            return nil
+        }
+    }
+    
+    //Chapter 26 - andles the actual taps on the rows.
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath ){
+        if indexPath.section == 0 && indexPath.row == 0 {
+            descriptionTextView.becomeFirstResponder()
+        }
+    }
+    
+    //Chapter - Whenever the user taps somewhere in the table view, the gesture recognizer calls this method. it also passes a reference to itself as a parameter, which lets you ask gestureRecognizer where the tap happened.
+    @objc func hideKeyboard(_ gestureRecognizer: UIGestureRecognizer){
+        let point = gestureRecognizer.location(in: tableView)
+        let indexPath = tableView.indexPathForRow(at: point)
+        if indexPath != nil && indexPath!.section == 0 &&
+            indexPath!.row == 0 {
+            return
+        }
+        descriptionTextView.resignFirstResponder()
     }
 }
