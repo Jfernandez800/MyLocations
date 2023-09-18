@@ -8,7 +8,7 @@
 //--------------------------Chapter 22---------------------------------
 import CoreLocation
 import UIKit
-
+import CoreData
 
 class CurrentLocationViewController: UIViewController, /*Chapter 22*/ CLLocationManagerDelegate {
     
@@ -35,6 +35,8 @@ class CurrentLocationViewController: UIViewController, /*Chapter 22*/ CLLocation
     var placemark: CLPlacemark?
     var performingReverseGeocoding = false
     var lastGeocodingError: Error?
+    //Chapter 27 -
+    var managedObjectContext: NSManagedObjectContext!
     
     //Chapter 23 -
     var timer: Timer?
@@ -292,6 +294,8 @@ class CurrentLocationViewController: UIViewController, /*Chapter 22*/ CLLocation
             let controller = segue.destination as! LocationDetailsViewController
             controller.coordinate = location!.coordinate
             controller.placemark = placemark
+            //Chapter 27 - This should also explain why the managedObjectContext variable is declared as an implicitly unwrapped optional with the type NSManagedObjectContext!.
+            controller.managedObjectContext = managedObjectContext
         }
     }
 }
