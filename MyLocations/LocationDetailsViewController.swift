@@ -124,7 +124,7 @@ class LocationDetailsViewController: UITableViewController {
         }
     }
     
-    //Chapter - Whenever the user taps somewhere in the table view, the gesture recognizer calls this method. it also passes a reference to itself as a parameter, which lets you ask gestureRecognizer where the tap happened.
+    //Chapter 26 - Whenever the user taps somewhere in the table view, the gesture recognizer calls this method. it also passes a reference to itself as a parameter, which lets you ask gestureRecognizer where the tap happened.
     @objc func hideKeyboard(_ gestureRecognizer: UIGestureRecognizer){
         let point = gestureRecognizer.location(in: tableView)
         let indexPath = tableView.indexPathForRow(at: point)
